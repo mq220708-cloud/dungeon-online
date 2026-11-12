@@ -233,7 +233,7 @@ function ua(){hd();if(T!='d'||!$('#ar'))return;dash();const need=Math.round(30*M
  `</div></div>❤️ ${S.hp}/${mhp()}${S.dead||LM==null?'':`<span class=pd>${LM?'-'+LM:'💨 Né!'}</span>`}${bar(S.hp/mhp()*100,'var(--r1)')}XP ${S.xp}/${need}${bar(S.xp/need*100,'var(--xp)')}`;
  $('#lg').innerHTML=L.join('<br>')||'Bắt đầu chiến đấu...';$('#pc').textContent=hc()}
 const hc=()=>20+S.lv*5;
-function rd(){$('#mn').innerHTML=`<div id=dash></div><div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div><div id=extras></div>`;ua()}
+function rd(){$('#mn').innerHTML=`<div id=dash></div><div id=extras></div><div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div>`;ua()}
 function fl(d){const f=S.floor+d;if(f>=1&&f<=S.best){S.floor=f;S.k=0;M=null;save();ua()}}
 function heal(){if(S.dead||S.gold<hc())return;S.gold-=hc();S.hp=Math.min(mhp(),S.hp+Math.round(mhp()*.6));ua()}
 function ta(){S.auto=!S.auto;rd()}
