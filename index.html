@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dungeon Online</title>
+<style>
+:root{--bg:#f4f1ea;--sf:#fff;--tx:#1d1b18;--mt:#77716a;--bd:#ddd6c8;--ac:#b4532a;--hp:#c0392b;--xp:#2e86c1;--r0:#77716a;--r1:#2e9e5b;--r2:#2e72d6;--r3:#9b3fd1;--r4:#e08a00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14120f;--sf:#201d19;--tx:#efe9df;--mt:#9d958a;--bd:#38332c;--ac:#e8845a;--r0:#a8a196;--r1:#4cc785;--r2:#6aa3f5;--r3:#c27cf0;--r4:#ffb340}}
+:root[data-theme="dark"]{--bg:#14120f;--sf:#201d19;--tx:#efe9df;--mt:#9d958a;--bd:#38332c;--ac:#e8845a;--r0:#a8a196;--r1:#4cc785;--r2:#6aa3f5;--r3:#c27cf0;--r4:#ffb340}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,sans-serif;padding-bottom:70px}
+#app{max-width:520px;margin:0 auto;padding:10px}
+#hd{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px;font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px}
+#hd b{font-size:15px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-top:10px}
+.bar{height:10px;background:var(--bd);border-radius:6px;overflow:hidden;margin:4px 0}
+.bar i{display:block;height:100%}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+button{font:inherit;font-size:13px;background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+button:active{background:var(--bd)}
+.mon{text-align:center}.mon .e{font-size:64px;line-height:1.1}
+.it{border:1px solid;border-left-width:5px;border-radius:8px;padding:6px 8px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.it small{color:var(--mt);display:block}
+.up{color:var(--r1)}.dn{color:var(--hp)}
+#lg{font-size:12px;color:var(--mt);min-height:90px}
+#nv{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--sf);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+#nv button{flex:1;border:0;border-radius:0;padding:14px 4px;background:none}
+#nv button.on{color:var(--ac);font-weight:700}
+h3{margin:12px 0 0;font-size:14px}
+.mon{position:relative}
+.hit{animation:shk .25s}
+.dm{position:absolute;left:50%;top:18px;transform:translateX(-50%);font-weight:800;font-size:20px;color:var(--hp);animation:fl .5s forwards;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.4);white-space:nowrap}
+.dm.mu{color:var(--r2)}
+.dm.cr{color:var(--r4);font-size:26px}
+.pd{float:right;font-weight:800;color:var(--hp);animation:fl .5s forwards}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes fl{from{opacity:1;margin-top:0}to{opacity:.6;margin-top:-14px}}
+#tc{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 6px);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:20}
+.ts{background:var(--sf);border:2px solid var(--r0);border-radius:10px;padding:8px 12px;max-width:90%;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.3);animation:tin .25s}
+.ts small{display:block;color:var(--mt)}
+.ts.r1{border-color:var(--r1)}.ts.r2{border-color:var(--r2)}.ts.r3{border-color:var(--r3)}
+.ts.r4{border-color:var(--r4);animation:tin .25s,glow 1s 3}
+@keyframes tin{from{opacity:0;transform:translateY(-12px)}}
+@keyframes glow{50%{box-shadow:0 0 22px var(--r4)}}
+</style></head><body>
+<div id="app"><div id="hd"></div><div id="mn"></div></div>
+<div id="tc"></div><div id="nv"></div>
+<script>
+const $=s=>document.querySelector(s),K='dgo1',R=a=>a[Math.random()*a.length|0];
+const RN=['Thường','Tốt','Hiếm','Sử thi','Huyền thoại'],RM=[1,1.4,1.9,2.6,3.6],PF=['Cũ','Sắt','Bạc','Cổ Long','Thần Diệt'];
+const SL={weapon:['⚔️','Kiếm','Rìu','Trượng','Cung','Dao găm','Búa'],armor:['🛡️','Giáp','Áo choàng','Chiến giáp'],helmet:['🪖','Mũ','Mão','Khôi'],ring:['💍','Nhẫn','Bùa','Vòng'],boots:['👢','Giày','Ủng','Hài'],gloves:['🧤','Găng','Bao tay','Găng sắt'],amulet:['📿','Dây chuyền','Bùa hộ mệnh','Huyết ngọc']};
+const SN={weapon:'Vũ khí',armor:'Giáp',helmet:'Mũ',ring:'Nhẫn',boots:'Giày',gloves:'Găng tay',amulet:'Dây chuyền'};
+const ME=['🟢','🦇','👺','💀','👹','🐺','🔥','🗿','🐲'],MN=['Slime','Dơi hang','Goblin','Bộ xương','Orc','Ma sói','Quỷ lửa','Golem','Rồng con'];
+const BN=['Vua Goblin','Chúa Xương','Quỷ Vương','Long Vương'];
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!S||!S.inv)S={lv:1,xp:0,gold:30,floor:1,k:0,hp:60,inv:[],eq:{},kills:0,best:1,dead:0,auto:true,name:'LuKhach'+(100+Math.random()*900|0)};
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+let LH=null,LM=null,T='d',M=null,L=[],C=[{n:'Hệ thống',t:'Chào mừng đến Dungeon Online!'}];
+const BOTS=['ThanhKiem','RongDen','MeoMap','AnhHaiTam','NguyetVu','Zed99','BaoBinh','LinhHon'].map(n=>({n,f:2+Math.random()*30|0}));
+const val=(i,k)=>Math.round((i[k]||0)*(1+.1*(i.p||0)));
+const gear=k=>Object.values(S.eq).reduce((s,i)=>s+(i?val(i,k):0),0);
+const tr=k=>S.tr&&S.tr[k]||0,cap=()=>40+(S.bg||0)*10;
+const atk=()=>5+S.lv*2+tr('a')*2+gear('a'),def=()=>1+S.lv+tr('d')+gear('d'),mhp=()=>50+S.lv*10+tr('h')*10+gear('h');
+const AF={crit:['🎯','Chí mạng',1.2],cd:['💥','ST chí mạng',4],ls:['🩸','Hút máu',.6],dg:['💨','Né tránh',.8],rg:['💚','Hồi máu',.5],as:['⚡','Tốc độ đánh',1.5],gf:['💰','Vàng',3],xf:['📖','EXP',3],mf:['🍀','Tỉ lệ rơi',3]};
+const AW={as:2.5,crit:1.5,cd:.5,ls:2,dg:2,rg:3,gf:.3,xf:.3,mf:.3},AC={as:100,crit:60,ls:25,dg:50,rg:10};
+const ax=k=>Math.min(AC[k]||999,Object.values(S.eq).reduce((s,i)=>s+(i&&i.x&&i.x[k]||0),0));
+const pw=i=>val(i,'a')*2+val(i,'d')*1.5+val(i,'h')*.2+Object.entries(i.x||{}).reduce((s,[k,v])=>s+v*AW[k],0);
+const stt=i=>[i.a?'⚔️'+val(i,'a'):'',i.d?'🛡️'+val(i,'d'):'',i.h?'❤️'+val(i,'h'):''].join(' ')+(i.x?'<br>'+Object.entries(i.x).map(([k,v])=>AF[k][0]+AF[k][1]+' +'+v+'%').join(' · '):'');
+const lg=t=>{L.unshift(t);L.length=Math.min(L.length,6)};
+const chat=(n,t)=>{C.unshift({n,t});C.length=Math.min(C.length,25)};
+function gen(boss){
+ const roll=Math.random()*100+(boss?12:0)+S.floor*.4,rar=roll>99?4:roll>93?3:roll>80?2:roll>55?1:0;
+ const s=R(Object.keys(SL)),st=(3+S.floor*1.6)*RM[rar]*(.85+Math.random()*.3),it={s,rar,p:0};
+ if(s=='weapon')it.a=Math.round(st*1.2);
+ if(s=='armor'){it.d=Math.round(st*.6);it.h=Math.round(st*5)}
+ if(s=='helmet'){it.d=Math.round(st*.4);it.h=Math.round(st*3)}
+ if(s=='ring'){it.a=Math.round(st*.6);it.h=Math.round(st*2)}
+ if(s=='boots'){it.d=Math.round(st*.3);it.h=Math.round(st*2.5)}
+ if(s=='gloves'){it.a=Math.round(st*.5);it.d=Math.round(st*.3)}
+ if(s=='amulet'){it.a=Math.round(st*.4);it.h=Math.round(st*3.5)}
+ it.n=R(SL[s].slice(1))+' '+PF[rar];if(rar){it.x={};Object.keys(AF).sort(()=>Math.random()-.5).slice(0,rar).forEach(k=>{it.x[k]=Math.max(1,Math.round(AF[k][2]*(1+S.floor*.04)*RM[rar]*(.7+Math.random()*.6)))})}
+ it.v=Math.max(1,Math.round(pw(it)*(.8+rar*.5)));return it}
+function spawn(){
+ const f=S.floor,b=f%5==0,i=Math.min(f/3|0,8);
+ const hp=Math.round(22*Math.pow(1.17,f)*(b?2.5:1));
+ M={b,n:b?BN[(f/5-1)%4|0]:MN[i],e:b?'👑':ME[i],mx:hp,hp,atk:Math.round((3+f*1.9)*(b?1.5:1)),def:Math.round(f*.7),
+  xp:Math.round((6+f*3)*(b?4:1)),g:Math.round((4+f*2.5)*(b?5:1)*(.7+Math.random()*.6))}}
+function addItem(it){
+ if(it.rar>=3){lg('✨ Nhặt được '+it.n+' ('+RN[it.rar]+')!');chat('🎉 '+S.name,'vừa nhặt được '+it.n+' ['+RN[it.rar]+']')}
+ else lg('Nhặt '+it.n+' ('+RN[it.rar]+')');
+ const full=S.inv.length>=cap();toast(it,full);if(full){S.gold+=it.v}else{S.inv.push(it);if(S.ae&&bestRun()){lg('⚡ Tự động mặc đồ mạnh hơn');if(T=='g')rg()}}}
+function toast(it,full){
+ if(S.nf&&it.rar<2)return;
+ const c=S.eq[it.s],df=Math.round(pw(it)-(c?pw(c):0)),d=document.createElement('div');
+ d.className='ts r'+it.rar;
+ d.innerHTML=`<b>${SL[it.s][0]} ${it.n}</b><small>${RN[it.rar]} · ${stt(it)} · ${df>=0?'▲':'▼'}${Math.abs(df)}${full?' · túi đầy, tự bán +'+it.v+'💰':''}</small>`;
+ const b=$('#tc');b.prepend(d);while(b.children.length>4)b.lastChild.remove();
+ setTimeout(()=>d.remove(),it.rar>=3?5000:2500)}
+function tick(){
+ if(S.dead>0){if(--S.dead==0){S.hp=mhp();S.k=0;spawn();lg('Bạn hồi sinh ở cổng tầng '+S.floor)}ua();return}
+ if(!M)spawn();
+ const ap=ax('as'),n=1+(ap/100|0)+(Math.random()<(ap%100)/100?1:0),c=Math.random()<.12+ax('crit')/100,d=Math.max(1,Math.round(atk()*(.85+Math.random()*.3)*(c?2+ax('cd')/100:1))-M.def)*n;LH={d,c,n};LM=null;
+ M.hp-=d;if(ax('ls'))S.hp=Math.min(mhp(),S.hp+Math.ceil(d*ax('ls')/100));
+ if(M.hp<=0){
+  const g=Math.round(M.g*(1+ax('gf')/100)),xp=Math.round(M.xp*(1+ax('xf')/100));S.gold+=g;S.xp+=xp;S.kills++;lg('Hạ '+M.n+': +'+g+'💰 +'+xp+'xp');
+  if(Math.random()<(M.b?1:.4*(1+ax('mf')/100)))addItem(gen(M.b));
+  let need=Math.round(30*Math.pow(S.lv,1.5));
+  while(S.xp>=need){S.xp-=need;S.lv++;S.hp=mhp();lg('🎉 Lên cấp '+S.lv+'!');need=Math.round(30*Math.pow(S.lv,1.5))}
+  if(M.b||++S.k>=5){S.k=0;if(S.auto&&S.floor==S.best){S.floor++;S.best++;lg('⬇️ Xuống tầng '+S.floor)}}
+  M=null;save();
+ }else{
+  const m=Math.random()<ax('dg')/100?0:Math.max(1,Math.round(M.atk*(.8+Math.random()*.4))-def());S.hp-=m;LM=m;
+  S.hp=Math.min(mhp(),S.hp+Math.round(mhp()*(.01+ax('rg')/200)));
+  if(S.hp<=0){S.hp=0;S.dead=3;M=null;S.k=0;lg('💀 Bạn đã gục ngã...')}
+ }
+ ua()}
+function hd(){$('#hd').innerHTML=`<b>${S.name}</b><span>Lv ${S.lv}</span><span>💰 ${S.gold}</span><span>⚔️ ${atk()} 🛡️ ${def()} ❤️ ${mhp()}</span>`}
+const bar=(p,c)=>`<div class=bar><i style="width:${Math.max(0,Math.min(100,p))}%;background:${c}"></i></div>`;
+function ua(){hd();if(T!='d')return;const need=Math.round(30*Math.pow(S.lv,1.5));
+ $('#ar').innerHTML=`<div class=mon><div style="font-size:12px;color:var(--mt)">Tầng ${S.floor} (cao nhất ${S.best}) · ${S.floor%5==0?'BOSS':S.k+'/5'}</div>`+
+ (S.dead>0?`<div class=e>💀</div><div>Hồi sinh...</div>`:M?`<div class='e hit'>${M.e}</div>${LH?`<div class='dm${LH.c?' cr':''}${LH.n>1?' mu':''}'>${LH.n>1?'⚡×'+LH.n+' ':''}${LH.c?'💥':''}-${LH.d}</div>`:''}<b>${M.n}</b> <small>${Math.max(0,M.hp)}/${M.mx}</small>${bar(M.hp/M.mx*100,'var(--hp)')}`:'<div class=e>…</div>')+
+ `</div>❤️ ${S.hp}/${mhp()}${S.dead||LM==null?'':`<span class=pd>${LM?'-'+LM:'💨 Né!'}</span>`}${bar(S.hp/mhp()*100,'var(--r1)')}XP ${S.xp}/${need}${bar(S.xp/need*100,'var(--xp)')}`;
+ $('#lg').innerHTML=L.join('<br>')||'Bắt đầu chiến đấu...';$('#pc').textContent=hc()}
+const hc=()=>20+S.lv*5;
+function rd(){$('#mn').innerHTML=`<div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div>`;ua()}
+function fl(d){const f=S.floor+d;if(f>=1&&f<=S.best){S.floor=f;S.k=0;M=null;ua()}}
+function heal(){if(S.dead||S.gold<hc())return;S.gold-=hc();S.hp=Math.min(mhp(),S.hp+Math.round(mhp()*.6));ua()}
+function ta(){S.auto=!S.auto;rd()}
+function tn(){S.nf=!S.nf;rd()}
+function spd(){S.sp=((S.sp||1)%4)+1;save();rd()}
+function itRow(i,btn,diff){return `<div class=it style="border-color:var(--r${i.rar})"><div><b style="color:var(--r${i.rar})">${SL[i.s][0]} ${i.n}${i.p?' +'+i.p:''}</b>${diff||''}<small>${stt(i)} · ${RN[i.rar]}</small></div><div>${btn}</div></div>`}
+function rg(){
+ let h=`<div class=row style='margin-top:0'><button onclick=best()>⚡ Mặc đồ mạnh nhất</button><button onclick=tae()>Tự mặc: ${S.ae?'BẬT':'TẮT'}</button></div><div class=card style='font-size:12px;line-height:1.7'><b>Chỉ số phụ đang có</b><br>${Object.keys(AF).map(k=>AF[k][0]+' '+AF[k][1]+': <b>'+ax(k)+'%</b>').join(' · ')}</div><h3>Trang bị đang mặc</h3>`;
+ for(const s in SL){const i=S.eq[s];
+  if(i){const c=Math.round(40*Math.pow(1.5,i.p)*(1+i.rar*.3));h+=itRow(i,(i.p<10?`<button onclick="enh('${s}')">⬆️ ${c}💰</button>`:'MAX')+(i.x?` <button onclick="rr('${s}')">🎲 ${rc(i)}💰</button>`:''))}
+  else h+=`<div class=it style="border-color:var(--bd)"><span style="color:var(--mt)">${SL[s][0]} ${SN[s]}: trống</span></div>`}
+ h+=`<h3>Túi đồ (${S.inv.length}/${cap()})</h3><div class=row style="margin-top:6px"><button onclick="sellLow(1)">Bán Thường+Tốt</button><button onclick="sellLow(2)">Bán đến Hiếm</button></div>`;
+ S.inv.map((i,x)=>({i,x})).sort((a,b)=>b.i.rar-a.i.rar||pw(b.i)-pw(a.i)).forEach(({i,x})=>{
+  const c=S.eq[i.s],d=Math.round(pw(i)-(c?pw(c):0));
+  h+=itRow(i,`<button onclick="eqp(${x})">Mặc</button> <button onclick="sell(${x})">${i.v}💰</button>`,` <span class="${d>=0?'up':'dn'}">${d>=0?'▲':'▼'}${Math.abs(d)}</span>`)});
+ $('#mn').innerHTML=h}
+function bestRun(){let n=0;for(const s in SL){const c=S.eq[s];let bi=-1,bp=c?pw(c):-1;S.inv.forEach((i,x)=>{if(i.s==s&&pw(i)>bp){bp=pw(i);bi=x}});if(bi>=0){const o=S.eq[s];S.eq[s]=S.inv[bi];S.inv.splice(bi,1);if(o)S.inv.push(o);n++}}S.hp=Math.min(S.hp,mhp());return n}
+function msg(t){const d=document.createElement('div');d.className='ts';d.textContent=t;$('#tc').prepend(d);setTimeout(()=>d.remove(),2200)}
+function best(){const n=bestRun();save();hd();if(T=='g')rg();msg(n?'⚡ Đã thay '+n+' món bằng đồ mạnh hơn':'Bạn đang mặc đồ mạnh nhất rồi')}
+function tae(){S.ae=!S.ae;if(S.ae)bestRun();save();hd();rg()}
+const trN={a:['⚔️','Luyện công','+2 tấn công'],d:['🛡️','Luyện thủ','+1 phòng thủ'],h:['❤️','Luyện thể','+10 máu']},trK='adh';
+const trC=k=>Math.round(60*Math.pow(1.3,tr(k))),bgC=()=>Math.round(300*Math.pow(1.6,S.bg||0)),rc=i=>Math.round(i.v*3+50),shC=()=>50+S.best*15;
+function mkShop(){S.shop=[0,1,2,3].map(()=>gen(true))}
+function rs(){
+ if(!S.shop)mkShop();
+ let h=`<div class=card><b>💰 ${S.gold}</b> vàng</div><h3>🏋️ Luyện tập (vĩnh viễn)</h3>`;
+ trK.split('').forEach((k,n)=>{h+=`<div class=it style='border-color:var(--bd)'><div><b>${trN[k][0]} ${trN[k][1]} Lv ${tr(k)}</b><small>${trN[k][2]} mỗi cấp</small></div><button onclick=buyTr(${n})>${trC(k)}💰</button></div>`});
+ h+=`<h3>🎒 Mở rộng túi</h3><div class=it style='border-color:var(--bd)'><div><b>Túi ${cap()} ô</b><small>+10 ô mỗi lần</small></div><button onclick=buyBag()>${bgC()}💰</button></div>`;
+ h+=`<h3>🏪 Tiệm đồ</h3><div class=row style='margin-top:6px'><button onclick=reShop()>🔄 Làm mới (${shC()}💰)</button></div>`;
+ S.shop.forEach((i,x)=>{if(!i){h+=`<div class=it style='border-color:var(--bd);color:var(--mt)'>Đã bán</div>`;return}
+  const c=S.eq[i.s],d=Math.round(pw(i)-(c?pw(c):0));
+  h+=itRow(i,`<button onclick=buyIt(${x})>${i.v*5}💰</button>`,` <span class='${d>=0?'up':'dn'}'>${d>=0?'▲':'▼'}${Math.abs(d)}</span>`)});
+ $('#mn').innerHTML=h}
+function buyTr(n){const k=trK[n],c=trC(k);if(S.gold<c)return msg('Không đủ vàng');S.gold-=c;S.tr=S.tr||{a:0,d:0,h:0};S.tr[k]++;save();hd();rs();msg('Đã luyện '+trN[k][1])}
+function buyBag(){const c=bgC();if(S.gold<c)return msg('Không đủ vàng');S.gold-=c;S.bg=(S.bg||0)+1;save();hd();rs();msg('Túi mở rộng thêm 10 ô')}
+function reShop(){const c=shC();if(S.gold<c)return msg('Không đủ vàng');S.gold-=c;mkShop();save();hd();rs()}
+function buyIt(x){const i=S.shop[x],p=i.v*5;if(S.gold<p)return msg('Không đủ vàng');if(S.inv.length>=cap())return msg('Túi đã đầy');S.gold-=p;S.inv.push(i);S.shop[x]=null;if(S.ae)bestRun();save();hd();rs();msg('Đã mua '+i.n)}
+function rr(s){const i=S.eq[s],c=rc(i);if(S.gold<c)return msg('Không đủ vàng');S.gold-=c;const n=Object.keys(i.x).length;i.x={};Object.keys(AF).sort(()=>Math.random()-.5).slice(0,n).forEach(k=>{i.x[k]=Math.max(1,Math.round(AF[k][2]*(1+S.floor*.04)*RM[i.rar]*(.7+Math.random()*.6)))});save();hd();rg();msg('🎲 Đã rèn lại chỉ số phụ')}
+function eqp(x){const i=S.inv[x],o=S.eq[i.s];S.eq[i.s]=i;S.inv.splice(x,1);if(o)S.inv.push(o);S.hp=Math.min(S.hp,mhp());save();hd();rg()}
+function sell(x){S.gold+=S.inv[x].v;S.inv.splice(x,1);save();hd();rg()}
+function sellLow(m){S.inv=S.inv.filter(i=>{if(i.rar<m){S.gold+=i.v;return false}return true});save();hd();rg()}
+function enh(s){const i=S.eq[s],c=Math.round(40*Math.pow(1.5,i.p)*(1+i.rar*.3));if(S.gold<c)return;S.gold-=c;i.p++;save();hd();rg()}
+function rw(){
+ const all=[...BOTS,{n:S.name+' (bạn)',f:S.best,me:1}].sort((a,b)=>b.f-a.f);
+ let h='<h3>🏆 Bảng xếp hạng tầng</h3><div class=card>'+all.slice(0,8).map((p,i)=>`<div style="display:flex;justify-content:space-between;${p.me?'font-weight:700;color:var(--ac)':''}"><span>${i+1}. ${p.n}</span><span>Tầng ${p.f}</span></div>`).join('')+'</div>';
+ h+='<h3>💬 Chat thế giới</h3><div class=card style="font-size:13px">'+C.map(m=>`<div><b>${m.n}</b>: ${m.t}</div>`).join('')+'</div>';
+ $('#mn').innerHTML=h}
+function go(t){T=t;nav();t=='d'?rd():t=='g'?rg():t=='s'?rs():rw()}
+function nav(){$('#nv').innerHTML=[['d','⚔️ Hầm ngục'],['g','🎒 Trang bị'],['s','🏪 Cửa hàng'],['w','🌍 Thế giới']].map(([k,l])=>`<button class="${T==k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}
+const MSG=['Ai đi tầng 10 farm boss không?','Vừa rớt đồ Sử thi, sướng quá!','Cần đồ vũ khí Hiếm, ai bán không?','Boss tầng 15 đau thật...','Gg mọi người, mai cày tiếp','Có party nào cần tanker không?'];
+(function lp(){try{tick()}finally{setTimeout(lp,700/(S.sp||1))}})();
+setInterval(()=>{const b=R(BOTS);const r=Math.random();
+ if(r<.5)chat(b.n,R(MSG));else if(r<.8){b.f++;if(b.f%5==0)chat('Hệ thống',b.n+' đã đánh bại boss tầng '+b.f+'!')}
+ else chat('🎉 '+b.n,'vừa nhặt được '+R(SL.weapon.slice(1))+' '+PF[3+(Math.random()<.3?1:0)]+' ['+RN[3+(Math.random()<.3?1:0)]+']');
+ if(T=='w')rw()},6000);
+nav();rd();
+</script></body></html>
