@@ -88,6 +88,53 @@ h3{color:#ead6ff}
 .bar{background:#493d58;height:9px}
 .it{background:#211b30;border-radius:10px}
 @media(min-width:430px){#app{padding:12px}.card{padding:13px}.mon .e{font-size:84px}}
+
+/* Illustrated mobile fantasy layout */
+#hd{display:grid;grid-template-columns:1fr auto;align-items:center}
+#hd b{grid-column:1/-1;font-size:16px}
+#dash .char-panel{margin-top:10px;padding:12px}
+.char-name{font-size:16px;font-weight:850;color:#fff;letter-spacing:.2px}
+.char-name span{font-size:12px;color:#f5c96e;margin-left:5px}
+.char-grid{grid-template-columns:58px 1fr;gap:11px}
+.avatar{width:56px;height:56px;font-size:34px;border-radius:14px}
+.char-vitals{margin-top:8px;font-size:12px;color:#f7eaff}
+.char-vitals .bar{margin:3px 0 0}
+#ar{padding:10px;overflow:hidden;position:relative;min-height:255px}
+.arena-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:900;letter-spacing:1px;color:#ead9ff;position:relative;z-index:3}
+.arena-top b{background:#4b315f;border:1px solid #9972b3;border-radius:20px;padding:4px 9px;color:#ffe4a8}
+.scene{height:175px;position:relative;overflow:hidden;border-radius:11px;margin:8px 0;background:linear-gradient(180deg,#17172c 0%,#342747 55%,#59415d 100%);border:1px solid #765b86;isolation:isolate}
+.scene:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 66%,#a57bb344,transparent 52%),linear-gradient(180deg,transparent 68%,#171321 100%);z-index:-1}
+.scene:after{content:'';position:absolute;left:-10%;right:-10%;bottom:-40px;height:95px;background:repeating-linear-gradient(90deg,#51405b 0 2px,transparent 2px 55px),repeating-linear-gradient(0deg,#67516c 0 2px,transparent 2px 28px),linear-gradient(#55405d,#211a2b);transform:perspective(100px) rotateX(8deg);box-shadow:0 -8px 22px #110d1c;z-index:0}
+.scene-stone{position:absolute;inset:0;background:linear-gradient(90deg,#100d1d99,transparent 20%,transparent 80%,#100d1d99),repeating-linear-gradient(90deg,transparent 0 75px,#a18aab12 76px 78px);z-index:0}
+.portal{position:absolute;width:104px;height:130px;left:50%;top:12px;transform:translateX(-50%);border:7px solid #76549a;border-radius:55% 55% 12px 12px;background:radial-gradient(ellipse,#d5aaff 0,#8e55c5 25%,#372451 62%,#151324 72%);box-shadow:0 0 15px #b879ff,inset 0 0 15px #d8b2ff;opacity:.8}
+.torch{position:absolute;top:22px;font-size:22px;filter:drop-shadow(0 0 9px #ff9b45);z-index:2}
+.torch-left{left:12px}.torch-right{right:12px}
+.hero-sprite{position:absolute;z-index:2;bottom:17px;left:18%;font-size:48px;filter:drop-shadow(0 6px 3px #000b);transform:scaleX(-1)}
+.scene .mon{position:absolute;z-index:2;bottom:10px;right:17%;width:42%;padding:0;background:none;text-align:center}
+.scene .mon .e{font-size:57px;line-height:1.1;margin:0 0 3px;filter:drop-shadow(0 7px 4px #000b)}
+.scene .mon b{display:block;color:#fff;text-shadow:0 2px 4px #000;font-size:13px}
+.scene .mon small{color:#ffe8f0;text-shadow:0 1px 3px #000}
+.scene .bar{background:#332638;border:1px solid #8d667d}
+#ar>.bar{height:10px}
+#extras .card{margin-top:10px}
+.quest-card,.map-card{background:linear-gradient(145deg,#302443,#201a30)}
+.panel-title{letter-spacing:.25px}
+.panel-title small{font-size:10px;color:#bca9d0!important}
+.mission{grid-template-columns:1fr auto;padding:8px 0}
+.mission b{font-size:12px}
+.mission small{font-size:10px}
+.mission button{min-width:66px;font-size:11px;padding:6px}
+.map-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:9px 0}
+.floor-node{min-height:49px;font-weight:750;border-radius:9px}
+.map-legend{font-size:10px;color:#bbaacb}
+.event-panel{position:relative;overflow:hidden;min-height:75px}
+.event-panel:after{content:'✦';position:absolute;right:22px;bottom:-22px;font-size:82px;color:#f5bd6b22;pointer-events:none}
+.event-mark{font-size:24px}
+.event-panel p{color:#d0bfdc}
+.quiet-event{min-height:55px}
+#lg{background:#171323;border:1px solid #49375c;border-radius:12px;padding:10px;min-height:58px}
+#nv button{font-size:11px;padding:12px 2px 14px}
+@media(max-width:370px){.char-stats{gap:4px 7px;font-size:10px}.hero-sprite{left:12%;font-size:42px}.scene .mon{right:10%}.scene .mon .e{font-size:49px}}
 </style></head><body>
 <div id="app"><div id="hd"></div><div id="mn"></div></div>
 <div id="tc"></div><div id="nv"></div>
@@ -169,11 +216,11 @@ const DAILY=[{n:'Tiêu diệt quái vật',d:20,k:'kills',r:80},{n:'Đánh bại
 function dailyHtml(){return DAILY.map((q,i)=>{const v=Math.min(q.d,S.daily[q.k]||0),done=v>=q.d,claimed=S.daily.claimed.includes(i);return '<div class=mission><div><b>'+q.n+'</b><small>'+v+'/'+q.d+' · Thưởng '+q.r+'💰</small>'+bar(v/q.d*100,'var(--xp)')+'</div><button '+(!done||claimed?'disabled':'')+' onclick="claimDaily('+i+')">'+(claimed?'Đã nhận':done?'Nhận':'Đang làm')+'</button></div>'}).join('')}
 function makeEvent(){const types=[{t:'Rương cổ bí ẩn',e:'🎁',d:'Một chiếc rương phủ bụi xuất hiện bên đường. Bên trong có thể chứa vàng và trang bị.',a:'Mở rương'},{t:'Suối hồi phục',e:'✨',d:'Một dòng suối ma thuật phát sáng. Bạn có thể hồi phục một phần sinh lực.',a:'Uống nước'},{t:'Thương nhân lang thang',e:'🧙',d:'Một thương nhân bí ẩn đang bán bình thuốc với giá 45 vàng.',a:'Mua bình thuốc'}];S.event=R(types);S.evWait=100;save()}
 function dash(){
- const d=$('#dash');if(!d)return;
- d.innerHTML='<div class="card char-panel"><div class=char-grid><div class=avatar>🧙</div><div><b>'+S.name+'</b> · Cấp '+S.lv+'<div class=char-stats><span>⚔️ Lực chiến '+Math.round(atk()*1.7+def()*1.2)+'</span><span>❤️ '+S.hp+'/'+mhp()+'</span><span>💰 '+S.gold+'</span><span>🏆 Cao nhất tầng '+S.best+'</span></div></div></div>'+bar(S.hp/mhp()*100,'#54c985')+'</div>'+
- '<div class=card><div class=panel-title>📜 Nhiệm vụ hằng ngày <small style="color:var(--mt);font-weight:400">Làm mới mỗi ngày</small></div>'+dailyHtml()+'</div>'+
- '<div class=card><div class=panel-title>🗺️ Bản đồ Dungeon <small style="color:var(--mt);font-weight:400">Tầng '+S.floor+'</small></div><div class=map-grid>'+Array.from({length:10},(_,i)=>{const f=Math.max(1,S.floor-4)+i,open=f<=S.best;return '<button class="floor-node '+(f===S.floor?'current ':'')+(!open?'locked':'')+'" '+(open?'onclick="flTo('+f+')"':'disabled')+'>'+(f%5===0?'👑':'⚔️')+'<br>'+f+'</button>'}).join('')+'</div><small style="color:var(--mt)">👑 Tầng Boss · Chỉ có thể chọn tầng đã mở khóa</small></div>'+
- (S.event?'<div class="card event-panel"><div class=panel-title>🎲 Sự kiện ngẫu nhiên <span>'+S.event.e+'</span></div><b>'+S.event.t+'</b><p>'+S.event.d+'</p><button onclick="takeEvent()">'+S.event.a+'</button></div>':'<div class=card><div class=panel-title>🎲 Sự kiện ngẫu nhiên</div><small style="color:var(--mt)">Dungeon đang xáo trộn... Sự kiện mới có thể xuất hiện sau vài trận Boss.</small></div>');
+ const d=$('#dash'),x=$('#extras');if(!d||!x)return;
+ d.innerHTML='<div class="card char-panel"><div class=char-grid><div class=avatar>🧙‍♂️</div><div><div class=char-name>'+S.name+' <span>Lv.'+S.lv+'</span></div><div class=char-stats><span>⚔️ Lực chiến '+Math.round(atk()*1.7+def()*1.2)+'</span><span>🏆 Tầng cao nhất '+S.best+'</span><span>💰 '+S.gold+'</span></div></div></div><div class=char-vitals><span>❤️ '+S.hp+'/'+mhp()+'</span>'+bar(S.hp/mhp()*100,'#54d99a')+'</div></div>';
+ x.innerHTML='<div class=card quest-card><div class=panel-title><span>📜 NHIỆM VỤ HẰNG NGÀY</span><small>↻ Mỗi ngày</small></div>'+dailyHtml()+'</div>'+
+ '<div class=card map-card><div class=panel-title><span>🗺️ BẢN ĐỒ HẦM NGỤC</span><small>Tầng '+S.floor+'</small></div><div class=map-grid>'+Array.from({length:10},(_,i)=>{const f=Math.max(1,S.floor-4)+i,open=f<=S.best;return '<button class="floor-node '+(f===S.floor?'current ':'')+(!open?'locked':'')+'" '+(open?'onclick="flTo('+f+')"':'disabled')+'>'+(f%5===0?'👑':'⚔️')+'<br>'+f+'</button>'}).join('')+'</div><small class=map-legend>● Đã mở khóa　 ◆ Đang khám phá　 👑 Boss</small></div>'+
+ (S.event?'<div class="card event-panel"><div class=panel-title><span>🎲 SỰ KIỆN BÍ ẨN</span><span class=event-mark>'+S.event.e+'</span></div><b>'+S.event.t+'</b><p>'+S.event.d+'</p><button onclick="takeEvent()">'+S.event.a+'</button></div>':'<div class="card event-panel quiet-event"><div class=panel-title>🎲 SỰ KIỆN BÍ ẨN</div><p>Những bí mật đang chờ được khám phá sâu trong hầm ngục...</p></div>');
 }
 function claimDaily(i){const q=DAILY[i];if(!q||S.daily.claimed.includes(i)||(S.daily[q.k]||0)<q.d)return;S.daily.claimed.push(i);S.gold+=q.r;save();hd();dash();msg('🎁 Hoàn thành nhiệm vụ: +'+q.r+' vàng')}
 function flTo(f){if(f<1||f>S.best)return;S.floor=f;S.k=0;M=null;save();rd()}
@@ -181,12 +228,12 @@ function takeEvent(){if(!S.event)return;const e=S.event.t;if(e==='Rương cổ b
 function hd(){$('#hd').innerHTML=`<b>${S.name}</b><span>Lv ${S.lv}</span><span>💰 ${S.gold}</span><span>⚔️ ${atk()} 🛡️ ${def()} ❤️ ${mhp()}</span>`}
 const bar=(p,c)=>`<div class=bar><i style="width:${Math.max(0,Math.min(100,p))}%;background:${c}"></i></div>`;
 function ua(){hd();if(T!='d'||!$('#ar'))return;dash();const need=Math.round(30*Math.pow(S.lv,1.5));
- $('#ar').innerHTML=`<div class=mon><div style="font-size:12px;color:var(--mt)">Tầng ${S.floor} (cao nhất ${S.best}) · ${S.floor%5==0?'BOSS':S.k+'/5'}</div>`+
+ $('#ar').innerHTML=`<div class=arena-top><span>🗝️ HẦM NGỤC TẦNG ${S.floor}</span><b>${S.floor%5==0?'👑 BOSS':'⚔️ '+S.k+'/5'}</b></div><div class=scene><div class=scene-stone></div><div class=portal></div><div class=torch torch-left>🔥</div><div class=torch torch-right>🔥</div><div class=hero-sprite>🛡️</div><div class=mon><div class=e>${S.dead>0?'💀':M?M.e:'…'}</div>`+
  (S.dead>0?`<div class=e>💀</div><div>Hồi sinh...</div>`:M?`<div class='e hit'>${M.e}</div>${LH?`<div class='dm${LH.c?' cr':''}${LH.n>1?' mu':''}'>${LH.n>1?'⚡×'+LH.n+' ':''}${LH.c?'💥':''}-${LH.d}</div>`:''}<b>${M.n}</b> <small>${Math.max(0,M.hp)}/${M.mx}</small>${bar(M.hp/M.mx*100,'var(--hp)')}`:'<div class=e>…</div>')+
- `</div>❤️ ${S.hp}/${mhp()}${S.dead||LM==null?'':`<span class=pd>${LM?'-'+LM:'💨 Né!'}</span>`}${bar(S.hp/mhp()*100,'var(--r1)')}XP ${S.xp}/${need}${bar(S.xp/need*100,'var(--xp)')}`;
+ `</div></div>❤️ ${S.hp}/${mhp()}${S.dead||LM==null?'':`<span class=pd>${LM?'-'+LM:'💨 Né!'}</span>`}${bar(S.hp/mhp()*100,'var(--r1)')}XP ${S.xp}/${need}${bar(S.xp/need*100,'var(--xp)')}`;
  $('#lg').innerHTML=L.join('<br>')||'Bắt đầu chiến đấu...';$('#pc').textContent=hc()}
 const hc=()=>20+S.lv*5;
-function rd(){$('#mn').innerHTML=`<div id=dash></div><div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div>`;ua()}
+function rd(){$('#mn').innerHTML=`<div id=dash></div><div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div><div id=extras></div>`;ua()}
 function fl(d){const f=S.floor+d;if(f>=1&&f<=S.best){S.floor=f;S.k=0;M=null;save();ua()}}
 function heal(){if(S.dead||S.gold<hc())return;S.gold-=hc();S.hp=Math.min(mhp(),S.hp+Math.round(mhp()*.6));ua()}
 function ta(){S.auto=!S.auto;rd()}
