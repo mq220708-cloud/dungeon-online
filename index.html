@@ -115,7 +115,7 @@ function tick(){
  ua()}
 function hd(){$('#hd').innerHTML=`<b>${S.name}</b><span>Lv ${S.lv}</span><span>💰 ${S.gold}</span><span>⚔️ ${atk()} 🛡️ ${def()} ❤️ ${mhp()}</span>`}
 const bar=(p,c)=>`<div class=bar><i style="width:${Math.max(0,Math.min(100,p))}%;background:${c}"></i></div>`;
-function ua(){hd();if(T!='d')return;const need=Math.round(30*Math.pow(S.lv,1.5));
+function ua(){hd();if(T!='d'||!$('#ar'))return;const need=Math.round(30*Math.pow(S.lv,1.5));
  $('#ar').innerHTML=`<div class=mon><div style="font-size:12px;color:var(--mt)">Tầng ${S.floor} (cao nhất ${S.best}) · ${S.floor%5==0?'BOSS':S.k+'/5'}</div>`+
  (S.dead>0?`<div class=e>💀</div><div>Hồi sinh...</div>`:M?`<div class='e hit'>${M.e}</div>${LH?`<div class='dm${LH.c?' cr':''}${LH.n>1?' mu':''}'>${LH.n>1?'⚡×'+LH.n+' ':''}${LH.c?'💥':''}-${LH.d}</div>`:''}<b>${M.n}</b> <small>${Math.max(0,M.hp)}/${M.mx}</small>${bar(M.hp/M.mx*100,'var(--hp)')}`:'<div class=e>…</div>')+
  `</div>❤️ ${S.hp}/${mhp()}${S.dead||LM==null?'':`<span class=pd>${LM?'-'+LM:'💨 Né!'}</span>`}${bar(S.hp/mhp()*100,'var(--r1)')}XP ${S.xp}/${need}${bar(S.xp/need*100,'var(--xp)')}`;
