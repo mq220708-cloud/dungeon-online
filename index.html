@@ -162,9 +162,49 @@ h3{color:#ead6ff}
 @keyframes monster-hit{0%{filter:brightness(2.5) drop-shadow(0 0 12px #fff)}45%{translate:9px 0;filter:brightness(1.8)}100%{translate:0 0;filter:brightness(1)}}
 @keyframes slash-burst{0%,100%{opacity:0;scale:.65;rotate:-18deg}12%{opacity:1}65%{opacity:.9;scale:1.1;rotate:8deg}85%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.hero-sprite,.scene .mon .e,.attack-slash{animation:none!important}}
+
+/* Landscape-first game layout */
+#rotate-hint{display:none}
+@media (orientation:portrait) and (max-width:900px){
+ body{overflow:hidden}
+ #app{height:calc(100dvh - 58px);overflow:auto}
+ #rotate-hint{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 35%,#49305f,#100d1b 72%);display:grid;place-items:center;padding:28px;text-align:center}
+ .rotate-card{max-width:310px;display:flex;flex-direction:column;align-items:center;gap:12px;color:#f7eaff}
+ .rotate-card b{font-size:19px;line-height:1.35}
+ .rotate-card span{font-size:13px;color:#c9b8dc}
+ .rotate-icon{font-size:48px;color:#e4b7ff;animation:rotate-hint 2s ease-in-out infinite}
+ @keyframes rotate-hint{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
+}
+@media (orientation:landscape) and (min-width:600px){
+ body{height:100dvh;overflow:hidden;padding-bottom:0}
+ #app{max-width:none;width:100%;height:calc(100dvh - 53px);padding:7px 10px;overflow:auto}
+ #hd{display:flex;align-items:center;gap:8px 18px;padding:7px 12px}
+ #hd b{font-size:15px}
+ #mn{display:grid;grid-template-columns:minmax(225px,.78fr) minmax(0,1.55fr);grid-template-rows:auto auto auto;gap:0 10px;align-items:start}
+ #dash{grid-column:1;grid-row:1}
+ #extras{grid-column:1;grid-row:2 / span 3;max-height:calc(100dvh - 120px);overflow:auto;padding-right:3px}
+ #ar{grid-column:2;grid-row:1;min-height:0;height:calc(100dvh - 185px);margin-top:10px;display:flex;flex-direction:column}
+ #ar .scene{flex:1;min-height:145px;height:auto;max-height:none}
+ #ar>.bar{flex-shrink:0}
+ #mn>.row{grid-column:2;grid-row:2;margin-top:8px;align-content:start}
+ #mn>#lg{grid-column:2;grid-row:3;margin-top:8px;min-height:40px;max-height:75px;overflow:auto}
+ #nv{height:46px}
+ #nv button{padding:8px 4px;font-size:12px}
+ #tc{top:5px}
+}
+@media (orientation:landscape) and (max-height:430px) and (min-width:600px){
+ #ar{height:calc(100dvh - 145px)}
+ #ar .scene{min-height:115px}
+ #extras .card{padding:8px;margin-top:6px}
+ .map-grid{gap:3px;margin:5px 0}
+ .floor-node{min-height:38px;padding:4px 2px}
+ .mission{padding:5px 0}
+}
 </style></head><body>
 <div id="app"><div id="hd"></div><div id="mn"></div></div>
 <div id="tc"></div><div id="nv"></div>
+<div id="rotate-hint" aria-live="polite"><div class="rotate-card"><div class="rotate-icon">↻</div><b>Dungeon Online chơi tốt nhất ở chế độ ngang</b><span>Hãy xoay điện thoại sang ngang để khám phá hầm ngục.</span></div></div>
+
 <script>
 const $=s=>document.querySelector(s),K='dgo1',R=a=>a[Math.random()*a.length|0];
 const RN=['Thường','Tốt','Hiếm','Sử thi','Huyền thoại'],RM=[1,1.4,1.9,2.6,3.6],PF=['Cũ','Sắt','Bạc','Cổ Long','Thần Diệt'];
