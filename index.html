@@ -39,6 +39,21 @@ h3{margin:12px 0 0;font-size:14px}
 .ts small{display:block;color:var(--mt)}
 .ts.r1{border-color:var(--r1)}.ts.r2{border-color:var(--r2)}.ts.r3{border-color:var(--r3)}
 .ts.r4{border-color:var(--r4);animation:tin .25s,glow 1s 3}
+.panel-title{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin-bottom:6px}
+.char-panel{background:linear-gradient(120deg,#30234a,#1c263b);color:#fff;border:1px solid #67528a}
+.char-grid{display:grid;grid-template-columns:52px 1fr;gap:9px;align-items:center}
+.avatar{width:48px;height:48px;border-radius:12px;background:#594477;display:grid;place-items:center;font-size:29px}
+.char-stats{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:12px;color:#e5dafa}
+.mission{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:7px 0;border-top:1px solid var(--bd);font-size:13px}
+.mission:first-of-type{border-top:0}
+.mission small{color:var(--mt)}
+.mission button{grid-row:span 2;align-self:center}
+.map-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.floor-node{padding:8px 2px;text-align:center;border:1px solid var(--bd);border-radius:8px;font-size:12px;background:var(--bg)}
+.floor-node.current{border:2px solid var(--ac);background:color-mix(in srgb,var(--ac) 13%,var(--sf));font-weight:800}
+.floor-node.locked{opacity:.4}
+.event-panel{border-color:var(--r4);background:linear-gradient(130deg,color-mix(in srgb,var(--r4) 9%,var(--sf)),var(--sf))}
+.event-panel p{font-size:13px;margin:4px 0 8px;color:var(--mt)}
 @keyframes tin{from{opacity:0;transform:translateY(-12px)}}
 @keyframes glow{50%{box-shadow:0 0 22px var(--r4)}}
 </style></head><body>
@@ -53,6 +68,9 @@ const ME=['🟢','🦇','👺','💀','👹','🐺','🔥','🗿','🐲'],MN=['S
 const BN=['Vua Goblin','Chúa Xương','Quỷ Vương','Long Vương'];
 let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 if(!S||!S.inv)S={lv:1,xp:0,gold:30,floor:1,k:0,hp:60,inv:[],eq:{},kills:0,best:1,dead:0,auto:true,name:'LuKhach'+(100+Math.random()*900|0)};
+const dayKey=()=>new Date().toLocaleDateString('en-CA');
+if(!S.daily||S.daily.date!==dayKey())S.daily={date:dayKey(),kills:0,boss:0,gold:0,claimed:[]};
+S.evWait=S.evWait||85;
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 let LH=null,LM=null,T='d',M=null,L=[],C=[{n:'Hệ thống',t:'Chào mừng đến Dungeon Online!'}];
 const BOTS=['ThanhKiem','RongDen','MeoMap','AnhHaiTam','NguyetVu','Zed99','BaoBinh','LinhHon'].map(n=>({n,f:2+Math.random()*30|0}));
@@ -98,31 +116,46 @@ function toast(it,full){
 function tick(){
  if(S.dead>0){if(--S.dead==0){S.hp=mhp();S.k=0;spawn();lg('Bạn hồi sinh ở cổng tầng '+S.floor)}ua();return}
  if(!M)spawn();
+ if(!S.event&&--S.evWait<=0)makeEvent();
  const ap=ax('as'),n=1+(ap/100|0)+(Math.random()<(ap%100)/100?1:0),c=Math.random()<.12+ax('crit')/100,d=Math.max(1,Math.round(atk()*(.85+Math.random()*.3)*(c?2+ax('cd')/100:1))-M.def)*n;LH={d,c,n};LM=null;
  M.hp-=d;if(ax('ls'))S.hp=Math.min(mhp(),S.hp+Math.ceil(d*ax('ls')/100));
  if(M.hp<=0){
-  const g=Math.round(M.g*(1+ax('gf')/100)),xp=Math.round(M.xp*(1+ax('xf')/100));S.gold+=g;S.xp+=xp;S.kills++;lg('Hạ '+M.n+': +'+g+'💰 +'+xp+'xp');
+  const wasBoss=M.b;
+  const g=Math.round(M.g*(1+ax('gf')/100)),xp=Math.round(M.xp*(1+ax('xf')/100));S.gold+=g;S.xp+=xp;S.kills++;S.daily.kills++;S.daily.gold+=g;if(wasBoss)S.daily.boss++;lg('Hạ '+M.n+': +'+g+'💰 +'+xp+'xp');
   if(Math.random()<(M.b?1:.4*(1+ax('mf')/100)))addItem(gen(M.b));
   let need=Math.round(30*Math.pow(S.lv,1.5));
   while(S.xp>=need){S.xp-=need;S.lv++;S.hp=mhp();lg('🎉 Lên cấp '+S.lv+'!');need=Math.round(30*Math.pow(S.lv,1.5))}
   if(M.b||++S.k>=5){S.k=0;if(S.auto&&S.floor==S.best){S.floor++;S.best++;lg('⬇️ Xuống tầng '+S.floor)}}
-  M=null;save();
+  M=null;if(wasBoss&&!S.event&&Math.random()<.38)makeEvent();save();
  }else{
   const m=Math.random()<ax('dg')/100?0:Math.max(1,Math.round(M.atk*(.8+Math.random()*.4))-def());S.hp-=m;LM=m;
   S.hp=Math.min(mhp(),S.hp+Math.round(mhp()*(.01+ax('rg')/200)));
   if(S.hp<=0){S.hp=0;S.dead=3;M=null;S.k=0;lg('💀 Bạn đã gục ngã...')}
  }
  ua()}
+const DAILY=[{n:'Tiêu diệt quái vật',d:20,k:'kills',r:80},{n:'Đánh bại Boss',d:2,k:'boss',r:140},{n:'Thu thập vàng',d:500,k:'gold',r:100}];
+function dailyHtml(){return DAILY.map((q,i)=>{const v=Math.min(q.d,S.daily[q.k]||0),done=v>=q.d,claimed=S.daily.claimed.includes(i);return '<div class=mission><div><b>'+q.n+'</b><small>'+v+'/'+q.d+' · Thưởng '+q.r+'💰</small>'+bar(v/q.d*100,'var(--xp)')+'</div><button '+(!done||claimed?'disabled':'')+' onclick="claimDaily('+i+')">'+(claimed?'Đã nhận':done?'Nhận':'Đang làm')+'</button></div>'}).join('')}
+function makeEvent(){const types=[{t:'Rương cổ bí ẩn',e:'🎁',d:'Một chiếc rương phủ bụi xuất hiện bên đường. Bên trong có thể chứa vàng và trang bị.',a:'Mở rương'},{t:'Suối hồi phục',e:'✨',d:'Một dòng suối ma thuật phát sáng. Bạn có thể hồi phục một phần sinh lực.',a:'Uống nước'},{t:'Thương nhân lang thang',e:'🧙',d:'Một thương nhân bí ẩn đang bán bình thuốc với giá 45 vàng.',a:'Mua bình thuốc'}];S.event=R(types);S.evWait=100;save()}
+function dash(){
+ const d=$('#dash');if(!d)return;
+ d.innerHTML='<div class="card char-panel"><div class=char-grid><div class=avatar>🧙</div><div><b>'+S.name+'</b> · Cấp '+S.lv+'<div class=char-stats><span>⚔️ Lực chiến '+Math.round(atk()*1.7+def()*1.2)+'</span><span>❤️ '+S.hp+'/'+mhp()+'</span><span>💰 '+S.gold+'</span><span>🏆 Cao nhất tầng '+S.best+'</span></div></div></div>'+bar(S.hp/mhp()*100,'#54c985')+'</div>'+
+ '<div class=card><div class=panel-title>📜 Nhiệm vụ hằng ngày <small style="color:var(--mt);font-weight:400">Làm mới mỗi ngày</small></div>'+dailyHtml()+'</div>'+
+ '<div class=card><div class=panel-title>🗺️ Bản đồ Dungeon <small style="color:var(--mt);font-weight:400">Tầng '+S.floor+'</small></div><div class=map-grid>'+Array.from({length:10},(_,i)=>{const f=Math.max(1,S.floor-4)+i,open=f<=S.best;return '<button class="floor-node '+(f===S.floor?'current ':'')+(!open?'locked':'')+'" '+(open?'onclick="flTo('+f+')"':'disabled')+'>'+(f%5===0?'👑':'⚔️')+'<br>'+f+'</button>'}).join('')+'</div><small style="color:var(--mt)">👑 Tầng Boss · Chỉ có thể chọn tầng đã mở khóa</small></div>'+
+ (S.event?'<div class="card event-panel"><div class=panel-title>🎲 Sự kiện ngẫu nhiên <span>'+S.event.e+'</span></div><b>'+S.event.t+'</b><p>'+S.event.d+'</p><button onclick="takeEvent()">'+S.event.a+'</button></div>':'<div class=card><div class=panel-title>🎲 Sự kiện ngẫu nhiên</div><small style="color:var(--mt)">Dungeon đang xáo trộn... Sự kiện mới có thể xuất hiện sau vài trận Boss.</small></div>');
+}
+function claimDaily(i){const q=DAILY[i];if(!q||S.daily.claimed.includes(i)||(S.daily[q.k]||0)<q.d)return;S.daily.claimed.push(i);S.gold+=q.r;save();hd();dash();msg('🎁 Hoàn thành nhiệm vụ: +'+q.r+' vàng')}
+function flTo(f){if(f<1||f>S.best)return;S.floor=f;S.k=0;M=null;save();rd()}
+function takeEvent(){if(!S.event)return;const e=S.event.t;if(e==='Rương cổ bí ẩn'){const g=80+S.floor*12;S.gold+=g;if(Math.random()<.55)addItem(gen(false));msg('Mở rương nhận '+g+' vàng!')}else if(e==='Suối hồi phục'){const h=Math.ceil(mhp()*.55);S.hp=Math.min(mhp(),S.hp+h);msg('Hồi phục '+h+' HP!')}else{if(S.gold<45)return msg('Không đủ 45 vàng');S.gold-=45;S.hp=Math.min(mhp(),S.hp+Math.ceil(mhp()*.35));msg('Đã mua và sử dụng bình thuốc!')}S.event=null;S.evWait=100;save();hd();dash();if(T==='d')ua()}
 function hd(){$('#hd').innerHTML=`<b>${S.name}</b><span>Lv ${S.lv}</span><span>💰 ${S.gold}</span><span>⚔️ ${atk()} 🛡️ ${def()} ❤️ ${mhp()}</span>`}
 const bar=(p,c)=>`<div class=bar><i style="width:${Math.max(0,Math.min(100,p))}%;background:${c}"></i></div>`;
-function ua(){hd();if(T!='d'||!$('#ar'))return;const need=Math.round(30*Math.pow(S.lv,1.5));
+function ua(){hd();if(T!='d'||!$('#ar'))return;dash();const need=Math.round(30*Math.pow(S.lv,1.5));
  $('#ar').innerHTML=`<div class=mon><div style="font-size:12px;color:var(--mt)">Tầng ${S.floor} (cao nhất ${S.best}) · ${S.floor%5==0?'BOSS':S.k+'/5'}</div>`+
  (S.dead>0?`<div class=e>💀</div><div>Hồi sinh...</div>`:M?`<div class='e hit'>${M.e}</div>${LH?`<div class='dm${LH.c?' cr':''}${LH.n>1?' mu':''}'>${LH.n>1?'⚡×'+LH.n+' ':''}${LH.c?'💥':''}-${LH.d}</div>`:''}<b>${M.n}</b> <small>${Math.max(0,M.hp)}/${M.mx}</small>${bar(M.hp/M.mx*100,'var(--hp)')}`:'<div class=e>…</div>')+
  `</div>❤️ ${S.hp}/${mhp()}${S.dead||LM==null?'':`<span class=pd>${LM?'-'+LM:'💨 Né!'}</span>`}${bar(S.hp/mhp()*100,'var(--r1)')}XP ${S.xp}/${need}${bar(S.xp/need*100,'var(--xp)')}`;
  $('#lg').innerHTML=L.join('<br>')||'Bắt đầu chiến đấu...';$('#pc').textContent=hc()}
 const hc=()=>20+S.lv*5;
-function rd(){$('#mn').innerHTML=`<div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div>`;ua()}
-function fl(d){const f=S.floor+d;if(f>=1&&f<=S.best){S.floor=f;S.k=0;M=null;ua()}}
+function rd(){$('#mn').innerHTML=`<div id=dash></div><div class=card id=ar></div><div class=row><button onclick="fl(-1)">◀ Tầng</button><button onclick="fl(1)">Tầng ▶</button><button onclick="heal()">🧪 Hồi máu (<span id=pc></span>💰)</button><button onclick="ta()">Tự lên tầng: ${S.auto?'BẬT':'TẮT'}</button><button onclick="tn()">Báo rơi đồ: ${S.nf?'Hiếm+':'Tất cả'}</button><button onclick="spd()">⏩ Tốc độ: x${S.sp||1}</button></div><div class=card id=lg></div>`;ua()}
+function fl(d){const f=S.floor+d;if(f>=1&&f<=S.best){S.floor=f;S.k=0;M=null;save();ua()}}
 function heal(){if(S.dead||S.gold<hc())return;S.gold-=hc();S.hp=Math.min(mhp(),S.hp+Math.round(mhp()*.6));ua()}
 function ta(){S.auto=!S.auto;rd()}
 function tn(){S.nf=!S.nf;rd()}
